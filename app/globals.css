@@ -1,0 +1,273 @@
+/* Gilang Pratama Putra Siswanto — monochrome studio system v2 */
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-signal: var(--signal);
+  --color-signal-foreground: var(--signal-foreground);
+  --color-status: var(--status);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-grid: var(--grid);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 2px;
+  --radius-2xl: 2px;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* Graphite core palette (per design system v2) */
+  --graphite-black: #0b0b0b;
+  --graphite-deep: #111111;
+  --graphite-base: #171717;
+  --graphite-surface: #1f1f1f;
+  --graphite-mid: #2d2d2d;
+  --graphite-border: #3a3a3a;
+  --graphite-light: #565656;
+  --white-milk: #f1ede5;
+  --white-dim: #cec7bc;
+  --white-pure: #ffffff;
+
+  --background: var(--graphite-black);
+  --foreground: var(--white-milk);
+  --card: var(--graphite-base);
+  --card-foreground: var(--white-milk);
+  --popover: var(--graphite-surface);
+  --popover-foreground: var(--white-milk);
+
+  /* Accent is near-monochrome: hover/emphasis brightens toward milk */
+  --primary: var(--white-milk);
+  --primary-foreground: var(--graphite-black);
+  --signal: var(--white-milk);
+  --signal-foreground: var(--graphite-black);
+
+  /* Tiny functional status accent only */
+  --status: #b24d3f;
+
+  --secondary: var(--graphite-surface);
+  --secondary-foreground: var(--white-milk);
+  --muted: var(--graphite-surface);
+  --muted-foreground: var(--white-dim);
+  --accent: var(--graphite-mid);
+  --accent-foreground: var(--white-milk);
+
+  --destructive: #b24d3f;
+  --border: var(--graphite-mid);
+  --border-strong: var(--graphite-border);
+  --input: var(--graphite-border);
+  --ring: var(--white-dim);
+  --grid: rgba(241, 237, 229, 0.045);
+
+  --chart-1: var(--white-milk);
+  --chart-2: var(--white-dim);
+  --chart-3: var(--graphite-light);
+  --chart-4: var(--graphite-border);
+  --chart-5: var(--graphite-mid);
+
+  --radius: 0.125rem;
+
+  /* Motion tokens */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  /* Smooth transitions on all interactive elements */
+  a,
+  button,
+  [role='button'],
+  input,
+  textarea,
+  select,
+  summary {
+    transition-property: color, background-color, border-color, opacity, box-shadow, transform;
+    transition-duration: 200ms;
+    transition-timing-function: var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1));
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'ss01', 'cv01', 'cv11';
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: var(--white-milk);
+    color: var(--graphite-black);
+  }
+  html {
+    scrollbar-color: var(--graphite-mid) transparent;
+  }
+  /* Global film-grain overlay for tactile depth */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+    background-size: 256px 256px;
+  }
+}
+
+@layer utilities {
+  /* Fine engineering grid background */
+  .lab-grid {
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+  .lab-grid-fine {
+    background-image:
+      linear-gradient(to right, var(--grid) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+
+  /* Local grain (for hero / media panels) */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    z-index: 40;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  /* Radial vignette */
+  .vignette::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 30;
+    background: radial-gradient(120% 120% at 50% 40%, transparent 55%, rgba(11, 11, 11, 0.85) 100%);
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  .scanline {
+    background: linear-gradient(
+      to bottom,
+      transparent 0%,
+      var(--white-milk) 50%,
+      transparent 100%
+    );
+  }
+
+  /* Subtle monochrome emphasis glow */
+  .glow-signal {
+    box-shadow: 0 0 0 1px rgba(241, 237, 229, 0.35), 0 12px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .mask-fade-y {
+    -webkit-mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, black 12%, black 88%, transparent);
+  }
+
+  /* Consistent card hover lift shared across project/pub cards */
+  .card-hover {
+    transition: transform 250ms var(--ease-out-expo, cubic-bezier(0.19, 1, 0.22, 1)),
+                border-color 200ms ease,
+                box-shadow 250ms ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  }
+
+  /* Character-level cursor "pierce" inversion for headings */
+  .pierce .pierce-char {
+    display: inline-block;
+    border-radius: 1px;
+    transition:
+      color 0.08s ease,
+      background-color 0.08s ease;
+  }
+  .pierce .pierce-char.pierce-on {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+}
+
+/* Hide the native cursor once the custom one is active (fine pointers only) */
+.has-custom-cursor,
+.has-custom-cursor a,
+.has-custom-cursor button,
+.has-custom-cursor [role='button'],
+.has-custom-cursor input,
+.has-custom-cursor textarea,
+.has-custom-cursor select,
+.has-custom-cursor [data-cursor='hover'] {
+  cursor: none;
+}
+
+@keyframes rec-blink {
+  0%, 60% { opacity: 1; }
+  61%, 100% { opacity: 0.15; }
+}
+.animate-rec {
+  animation: rec-blink 1.6s steps(1) infinite;
+}
+
+@keyframes scan-move {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(2400%); }
+}
+.animate-scan {
+  animation: scan-move 6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
