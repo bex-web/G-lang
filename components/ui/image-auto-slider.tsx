@@ -6,12 +6,12 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 
 const sliderImages = [
-  { src: '/images/slider/1.png', alt: 'Slider 1' },
-  { src: '/images/slider/2.jfif', alt: 'Slider 2' },
-  { src: '/images/slider/3.jfif', alt: 'Slider 3' },
-  { src: '/images/slider/4.png', alt: 'Slider 4' },
+  { src: '/images/slider/1.jpg', alt: 'Slider 1' },
+  { src: '/images/slider/2.jpg', alt: 'Slider 2' },
+  { src: '/images/slider/3.jpg', alt: 'Slider 3' },
+  { src: '/images/slider/4.jpg', alt: 'Slider 4' },
   { src: '/images/slider/5.jpg', alt: 'Slider 5' },
-  { src: '/images/slider/6.png', alt: 'Slider 6' },
+  { src: '/images/slider/6.jpg', alt: 'Slider 6' },
 ]
 
 interface ImageAutoSliderProps {

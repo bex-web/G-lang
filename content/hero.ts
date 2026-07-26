@@ -49,7 +49,7 @@ export type HeroBackgroundAsset = {
 export const heroBackground: HeroBackgroundAsset = {
   src: '/images/hero/playback-loop.mp4',
   type: 'video',
-  poster: '/hero-loop-poster.png',
+  poster: '/hero-loop-poster.jpg',
   duration: 7,
   loop: true,
   muted: true,

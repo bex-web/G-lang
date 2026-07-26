@@ -7,7 +7,7 @@ import { timeline } from '@/content/specialities'
 // Map timeline entries to stacking card format with laboratory log images
 const labProjects: ProjectCard[] = timeline.map((entry, index) => {
   // Determine file extension based on index
-  const extensions = ['png', 'jfif', 'jfif', 'png', 'jpg', 'png']
+  const extensions = ['jpg', 'jpg', 'jpg', 'jpg', 'jpg', 'jpg']
   const ext = extensions[index] || 'png'
   
   return {
