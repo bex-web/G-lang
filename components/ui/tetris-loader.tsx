@@ -213,3 +213,147 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
     </motion.div>
   )
 }
+
+// ── Tetris Loading Bar (continuous, no timer) ────────────────────────────────
+const BAR_COLS = 20
+const BAR_ROWS = 4
+
+function emptyBarBoard(): Board {
+  return Array.from({ length: BAR_ROWS }, () =>
+    Array.from({ length: BAR_COLS }, () => ({ filled: false, color: '' })),
+  )
+}
+
+function randomBarPiece(): Piece {
+  const t = TETROMINOES[Math.floor(Math.random() * TETROMINOES.length)]
+  return {
+    shape: t.shape,
+    color: t.color,
+    x: Math.floor((BAR_COLS - t.shape[0].length) / 2),
+    y: 0,
+  }
+}
+
+function canPlaceBar(board: Board, piece: Piece, dx = 0, dy = 0): boolean {
+  for (let r = 0; r < piece.shape.length; r++) {
+    for (let c = 0; c < piece.shape[r].length; c++) {
+      if (!piece.shape[r][c]) continue
+      const nr = piece.y + r + dy
+      const nc = piece.x + c + dx
+      if (nr >= BAR_ROWS || nc < 0 || nc >= BAR_COLS) return false
+      if (nr >= 0 && board[nr][nc].filled) return false
+    }
+  }
+  return true
+}
+
+function lockBarPiece(board: Board, piece: Piece): Board {
+  const next = board.map((row) => row.map((cell) => ({ ...cell })))
+  for (let r = 0; r < piece.shape.length; r++) {
+    for (let c = 0; c < piece.shape[r].length; c++) {
+      if (!piece.shape[r][c]) continue
+      const nr = piece.y + r
+      const nc = piece.x + c
+      if (nr >= 0 && nr < BAR_ROWS && nc >= 0 && nc < BAR_COLS) {
+        next[nr][nc] = { filled: true, color: piece.color }
+      }
+    }
+  }
+  return next
+}
+
+function clearBarLines(board: Board): Board {
+  const remaining = board.filter((row) => !row.every((c) => c.filled))
+  const cleared = BAR_ROWS - remaining.length
+  const empty = Array.from({ length: cleared }, () =>
+    Array.from({ length: BAR_COLS }, () => ({ filled: false, color: '' })),
+  )
+  return [...empty, ...remaining]
+}
+
+interface TetrisLoadingBarProps {
+  size?: 'sm' | 'md' | 'lg'
+  speed?: 'slow' | 'medium' | 'fast'
+  className?: string
+}
+
+export function TetrisLoadingBar({
+  size = 'md',
+  speed = 'medium',
+  className,
+}: TetrisLoadingBarProps) {
+  const [board, setBoard] = useState<Board>(emptyBarBoard)
+  const [current, setCurrent] = useState<Piece>(randomBarPiece)
+  const cellSize = SIZES[size]
+  const interval = SPEEDS[speed]
+
+  const boardRef = useRef(board)
+  const currentRef = useRef(current)
+  boardRef.current = board
+  currentRef.current = current
+
+  const step = useCallback(() => {
+    const b = boardRef.current
+    const p = currentRef.current
+    if (canPlaceBar(b, p, 0, 1)) {
+      setCurrent((prev) => ({ ...prev, y: prev.y + 1 }))
+    } else {
+      const locked = lockBarPiece(b, p)
+      const cleaned = clearBarLines(locked)
+      setBoard(cleaned)
+      setCurrent(randomBarPiece())
+    }
+  }, [])
+
+  useEffect(() => {
+    const id = setInterval(step, interval)
+    return () => clearInterval(id)
+  }, [step, interval])
+
+  const display: Cell[][] = board.map((row) => row.map((cell) => ({ ...cell })))
+  for (let r = 0; r < current.shape.length; r++) {
+    for (let c = 0; c < current.shape[r].length; c++) {
+      if (!current.shape[r][c]) continue
+      const nr = current.y + r
+      const nc = current.x + c
+      if (nr >= 0 && nr < BAR_ROWS && nc >= 0 && nc < BAR_COLS) {
+        display[nr][nc] = { filled: true, color: current.color }
+      }
+    }
+  }
+
+  return (
+    <div className={cn('inline-flex flex-col', className)} role="status" aria-label="Loading assets">
+      <div
+        className="border border-border overflow-hidden"
+        style={{
+          width: cellSize * BAR_COLS,
+          height: cellSize * BAR_ROWS,
+          background: 'var(--graphite-black, #0b0b0b)',
+        }}
+      >
+        {display.map((row, ri) => (
+          <div key={ri} className="flex">
+            {row.map((cell, ci) => (
+              <div
+                key={ci}
+                style={{
+                  width: cellSize,
+                  height: cellSize,
+                  background: cell.filled ? cell.color : 'transparent',
+                  borderRight: '1px solid rgba(255,255,255,0.03)',
+                  borderBottom: '1px solid rgba(255,255,255,0.03)',
+                  boxShadow: cell.filled
+                    ? `inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(0,0,0,0.3)`
+                    : 'none',
+                  transition: 'background 0.1s',
+                }}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <span className="sr-only">Loading assets…</span>
+    </div>
+  )
+}
