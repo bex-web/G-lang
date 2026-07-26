@@ -51,7 +51,7 @@ export function ConnectBoxy() {
         <div className="grid gap-12 md:grid-cols-12">
           <Reveal className="md:col-span-7">
             <p className="text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground">
-              08 · Start a conversation
+              05 · Start a conversation
             </p>
             <h2 className="mt-6 text-balance text-4xl font-bold leading-[1.02] tracking-tight sm:text-5xl md:text-6xl">
               <MagneticText

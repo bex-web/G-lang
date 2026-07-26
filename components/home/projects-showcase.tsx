@@ -28,7 +28,7 @@ export function ProjectsShowcase() {
     >
       <div className="w-full px-6 lg:px-12 xl:px-20">
         <SectionHeading
-          code="05 · Still hungry, stay 73.86%"
+           code="03 · Still hungry, stay 73.86%"
           title="Project & Development"
           description="We seek some science, human, and machines. Then these works happen.ed. "
           inverse

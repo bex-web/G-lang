@@ -29,7 +29,7 @@ export function Timeline() {
     >
       <div className="w-full px-6 lg:px-12 xl:px-20">
         <SectionHeading
-          code="04 · The tale"
+          code="02 · The tale"
           title="This is where the tale begin"
           description="Experiments, builds, and milestones | captured and defining these sequences."
           inverse

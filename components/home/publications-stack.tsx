@@ -32,7 +32,7 @@ export function PublicationsStack() {
     >
       <div className="w-full px-6 lg:px-12 xl:px-20">
         <SectionHeading
-          code="06 · D-Archive"
+           code="04 · D-Archive"
           title="Publications"
           description="Peer-reviewed and open research output. Click any book to read the abstract and access the full publication."
           inverse
