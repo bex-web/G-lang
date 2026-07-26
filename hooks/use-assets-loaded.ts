@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react'
 
+const POLL_MS = 400
+const TIMEOUT_MS = 30000
+
 function allAssetsReady(): boolean {
   const images = document.querySelectorAll<HTMLImageElement>('img')
   const videos = document.querySelectorAll<HTMLVideoElement>('video')
@@ -9,12 +12,11 @@ function allAssetsReady(): boolean {
   for (const img of images) {
     if (img.dataset.skipLoader !== undefined) continue
     if (!img.complete) return false
-    if (img.naturalWidth === 0) continue
   }
 
   for (const video of videos) {
     if (video.dataset.skipLoader !== undefined) continue
-    if (video.readyState < 4) return false
+    if (video.readyState < 2) return false
   }
 
   return true
@@ -28,19 +30,28 @@ export function useAssetsLoaded() {
     if (started.current) return
     started.current = true
 
-    let raf: number
+    let timer: ReturnType<typeof setTimeout>
+    let timeoutTimer: ReturnType<typeof setTimeout>
 
     const poll = () => {
       if (allAssetsReady()) {
         setLoaded(true)
       } else {
-        raf = requestAnimationFrame(poll)
+        timer = setTimeout(poll, POLL_MS)
       }
     }
 
-    raf = requestAnimationFrame(poll)
+    timer = setTimeout(poll, POLL_MS)
 
-    return () => cancelAnimationFrame(raf)
+    timeoutTimer = setTimeout(() => {
+      clearTimeout(timer)
+      setLoaded(true)
+    }, TIMEOUT_MS)
+
+    return () => {
+      clearTimeout(timer)
+      clearTimeout(timeoutTimer)
+    }
   }, [])
 
   return loaded

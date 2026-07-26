@@ -217,6 +217,7 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
 // ── Tetris Loading Bar (portrait, interactive with arrow keys) ────────────────
 const BAR_COLS = 8
 const BAR_ROWS = 10
+const BAR_SPEEDS = { slow: 700, medium: 500, fast: 350, relaxed: 900 }
 
 function emptyBarBoard(): Board {
   return Array.from({ length: BAR_ROWS }, () =>
@@ -271,6 +272,14 @@ function clearBarLines(board: Board): Board {
   return [...empty, ...remaining]
 }
 
+function getFullRows(board: Board): number[] {
+  const rows: number[] = []
+  for (let i = 0; i < board.length; i++) {
+    if (board[i].every((c) => c.filled)) rows.push(i)
+  }
+  return rows
+}
+
 function rotateShape(shape: number[][]): number[][] {
   const rows = shape.length
   const cols = shape[0].length
@@ -285,37 +294,66 @@ function rotateShape(shape: number[][]): number[][] {
 
 interface TetrisLoadingBarProps {
   size?: 'sm' | 'md' | 'lg'
-  speed?: 'slow' | 'medium' | 'fast'
+  speed?: 'slow' | 'medium' | 'fast' | 'relaxed'
   className?: string
 }
 
 export function TetrisLoadingBar({
   size = 'md',
-  speed = 'medium',
+  speed = 'relaxed',
   className,
 }: TetrisLoadingBarProps) {
   const [board, setBoard] = useState<Board>(emptyBarBoard)
   const [current, setCurrent] = useState<Piece>(randomBarPiece)
+  const [clearingRows, setClearingRows] = useState<number[]>([])
   const cellSize = SIZES[size]
-  const interval = SPEEDS[speed]
+  const interval = BAR_SPEEDS[speed]
+  const pausedRef = useRef(false)
 
   const boardRef = useRef(board)
   const currentRef = useRef(current)
   boardRef.current = board
   currentRef.current = current
 
+  const spawn = useCallback((locked: Board) => {
+    const newPiece = randomBarPiece()
+    if (!canPlaceBar(locked, newPiece)) {
+      setBoard(emptyBarBoard())
+      setCurrent(randomBarPiece())
+    } else {
+      setBoard(locked)
+      setCurrent(newPiece)
+    }
+  }, [])
+
   const step = useCallback(() => {
+    if (pausedRef.current) return
     const b = boardRef.current
     const p = currentRef.current
     if (canPlaceBar(b, p, 0, 1)) {
       setCurrent((prev) => ({ ...prev, y: prev.y + 1 }))
     } else {
       const locked = lockBarPiece(b, p)
-      const cleaned = clearBarLines(locked)
-      setBoard(cleaned)
-      setCurrent(randomBarPiece())
+      const full = getFullRows(locked)
+      if (full.length > 0) {
+        pausedRef.current = true
+        setClearingRows(full)
+        setTimeout(() => {
+          const cleaned = clearBarLines(locked)
+          setBoard(cleaned)
+          setClearingRows([])
+          pausedRef.current = false
+          const nextPiece = randomBarPiece()
+          if (!canPlaceBar(cleaned, nextPiece)) {
+            setBoard(emptyBarBoard())
+          }
+          setCurrent(randomBarPiece())
+        }, 360)
+      } else {
+        spawn(locked)
+      }
     }
-  }, [])
+  }, [spawn])
 
   useEffect(() => {
     const id = setInterval(step, interval)
@@ -324,6 +362,7 @@ export function TetrisLoadingBar({
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (pausedRef.current) return
       const b = boardRef.current
       const p = currentRef.current
       switch (e.key) {
@@ -374,6 +413,8 @@ export function TetrisLoadingBar({
     }
   }
 
+  const clearingSet = new Set(clearingRows)
+
   return (
     <div className={cn('inline-flex flex-col', className)} role="status" aria-label="Loading assets">
       <div
@@ -392,13 +433,19 @@ export function TetrisLoadingBar({
                 style={{
                   width: cellSize,
                   height: cellSize,
-                  background: cell.filled ? cell.color : 'transparent',
+                  background: clearingSet.has(ri)
+                    ? 'var(--white-milk, #f1ede5)'
+                    : cell.filled
+                      ? cell.color
+                      : 'transparent',
                   borderRight: '1px solid rgba(255,255,255,0.03)',
                   borderBottom: '1px solid rgba(255,255,255,0.03)',
-                  boxShadow: cell.filled
+                  boxShadow: cell.filled && !clearingSet.has(ri)
                     ? `inset 1px 1px 0 rgba(255,255,255,0.15), inset -1px -1px 0 rgba(0,0,0,0.3)`
                     : 'none',
-                  transition: 'background 0.1s',
+                  transition: clearingSet.has(ri)
+                    ? 'background 0.08s'
+                    : 'background 0.1s, transform 0.25s ease',
                 }}
               />
             ))}

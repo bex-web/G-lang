@@ -37,7 +37,7 @@ export function PageLoadWrapper({ children }: PageLoadWrapperProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <TetrisLoadingBar size="sm" speed="fast" className="scale-75" />
+            <TetrisLoadingBar size="sm" speed="relaxed" className="scale-75" />
 
             <p className="font-mono text-xs tracking-[0.3em] text-muted-foreground">
               Loading screen, enjoy your moment ^^
