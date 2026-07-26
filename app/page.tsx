@@ -3,8 +3,7 @@ import { SiteFooter } from '@/components/layout/site-footer'
 import { Hero } from '@/components/home/hero'
 import { Identity } from '@/components/home/identity'
 import { CurrentPositions } from '@/components/home/current-positions'
-import { ResearchFocus } from '@/components/home/research-focus'
-import { NodeGraph } from '@/components/home/node-graph'
+
 import { Timeline } from '@/components/home/timeline'
 import { ProjectsShowcase } from '@/components/home/projects-showcase'
 import { PublicationsStack } from '@/components/home/publications-stack'
@@ -48,8 +47,6 @@ export default function Page() {
         <Hero />
         <Identity />
         <CurrentPositions />
-        <ResearchFocus />
-        <NodeGraph />
         <Timeline />
         <ProjectsShowcase />
         <PublicationsStack />
