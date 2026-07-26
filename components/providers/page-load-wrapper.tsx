@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { TetrisLoadingBar } from '@/components/ui/tetris-loader'
 import { useAssetsLoaded } from '@/hooks/use-assets-loaded'
@@ -11,9 +11,8 @@ interface PageLoadWrapperProps {
 
 export function PageLoadWrapper({ children }: PageLoadWrapperProps) {
   const [mounted, setMounted] = useState(false)
-  const [revealed, setRevealed] = useState(false)
   const assetsLoaded = useAssetsLoaded()
-  const containerRef = useRef<HTMLDivElement>(null)
+  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -26,14 +25,12 @@ export function PageLoadWrapper({ children }: PageLoadWrapperProps) {
     }
   }, [assetsLoaded, mounted])
 
-  if (!mounted) {
-    return <>{children}</>
-  }
+  const showLoader = mounted && !revealed
 
   return (
     <>
       <AnimatePresence>
-        {!revealed && (
+        {showLoader && (
           <motion.div
             className="fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-8 bg-background"
             initial={{ opacity: 1 }}
@@ -49,10 +46,7 @@ export function PageLoadWrapper({ children }: PageLoadWrapperProps) {
         )}
       </AnimatePresence>
 
-      <div
-        ref={containerRef}
-        style={{ visibility: !revealed ? 'hidden' : 'visible' }}
-      >
+      <div style={{ visibility: showLoader ? 'hidden' : 'visible' }}>
         {children}
       </div>
     </>
