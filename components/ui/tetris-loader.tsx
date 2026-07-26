@@ -214,9 +214,9 @@ export function SiteLoader({ onDone }: SiteLoaderProps) {
   )
 }
 
-// ── Tetris Loading Bar (continuous, no timer) ────────────────────────────────
-const BAR_COLS = 20
-const BAR_ROWS = 4
+// ── Tetris Loading Bar (portrait, interactive with arrow keys) ────────────────
+const BAR_COLS = 8
+const BAR_ROWS = 10
 
 function emptyBarBoard(): Board {
   return Array.from({ length: BAR_ROWS }, () =>
@@ -271,6 +271,18 @@ function clearBarLines(board: Board): Board {
   return [...empty, ...remaining]
 }
 
+function rotateShape(shape: number[][]): number[][] {
+  const rows = shape.length
+  const cols = shape[0].length
+  const result: number[][] = Array.from({ length: cols }, () => Array(rows).fill(0))
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      result[c][rows - 1 - r] = shape[r][c]
+    }
+  }
+  return result
+}
+
 interface TetrisLoadingBarProps {
   size?: 'sm' | 'md' | 'lg'
   speed?: 'slow' | 'medium' | 'fast'
@@ -309,6 +321,46 @@ export function TetrisLoadingBar({
     const id = setInterval(step, interval)
     return () => clearInterval(id)
   }, [step, interval])
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const b = boardRef.current
+      const p = currentRef.current
+      switch (e.key) {
+        case 'ArrowLeft': {
+          if (canPlaceBar(b, p, -1, 0)) {
+            setCurrent((prev) => ({ ...prev, x: prev.x - 1 }))
+          }
+          break
+        }
+        case 'ArrowRight': {
+          if (canPlaceBar(b, p, 1, 0)) {
+            setCurrent((prev) => ({ ...prev, x: prev.x + 1 }))
+          }
+          break
+        }
+        case 'ArrowDown': {
+          if (canPlaceBar(b, p, 0, 1)) {
+            setCurrent((prev) => ({ ...prev, y: prev.y + 1 }))
+          }
+          break
+        }
+        case 'ArrowUp': {
+          const rotated = rotateShape(p.shape)
+          const kicked =
+            canPlaceBar(b, { ...p, shape: rotated }, 0, 0) ||
+            canPlaceBar(b, { ...p, shape: rotated }, -1, 0) ||
+            canPlaceBar(b, { ...p, shape: rotated }, 1, 0)
+          if (kicked) {
+            setCurrent((prev) => ({ ...prev, shape: rotated }))
+          }
+          break
+        }
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const display: Cell[][] = board.map((row) => row.map((cell) => ({ ...cell })))
   for (let r = 0; r < current.shape.length; r++) {

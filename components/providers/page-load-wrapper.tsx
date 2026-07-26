@@ -39,8 +39,8 @@ export function PageLoadWrapper({ children }: PageLoadWrapperProps) {
           >
             <TetrisLoadingBar size="sm" speed="fast" className="scale-75" />
 
-            <p className="font-mono text-xs uppercase tracking-[0.3em] text-muted-foreground">
-              Loading assets…
+            <p className="font-mono text-xs tracking-[0.3em] text-muted-foreground">
+              Loading screen, enjoy your moment ^^
             </p>
           </motion.div>
         )}
